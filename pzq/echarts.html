@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script type="text/javascript" src="echarts3.js"></script>
+		<script type="text/javascript" src="jquery203.js"></script>
+	</head>
+
+	<body>
+		<div id="myChart" style="width: 700px;height: 600px;"></div>
+	</body>
+	<script>
+		var option = {
+			title: {
+				text: '二维数据视图',
+				subtext: '纯属虚构'
+			},
+			tooltip: {
+				trigger: 'axis',
+				axisPointer: {
+					type: 'shadow'
+				}
+			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '10%',
+				containLabel: true
+			},
+			legend: {
+				left: 'right',
+				top: 'middle',
+				data: []
+			},
+			xAxis: {
+				type: 'category',
+				data: []
+			},
+			yAxis: {
+				type: 'value',
+				name: '数量（条）'
+			},
+			series: []
+		};
+
+		function getData(myChart, config) {
+			$.ajax({
+				url: 'requestData.json',
+				dataType: 'json',
+				success: function(reps) {
+					var obj = reps.data,
+						legendData = [],
+						xAxisData = [],
+						seriesData = [];
+					for(var k in obj) { //获取并转换图例data数据        Object.getOwnPropertyNames(data1.data)该方法可以获取对象的属性值，返回一个数组
+						legendData.push(k);
+						//seriesData.push({name:k,type:'bar',data:[]});
+					}
+					option.legend.data = legendData; //图例
+					console.log(option.legend.data);
+
+					for(var a = 0; a < obj[legendData[0]].length; a++) {
+						xAxisData.push(obj[legendData[0]][a].name);
+					}
+					option.xAxis.data = xAxisData; //x轴类目
+					var sData = [];
+					for(var i = 0; i < legendData.length; i++) {
+						sData[i] = new Array();
+						for(var j = 0; j < obj[legendData[i]].length; j++) {
+							sData[i].push(obj[legendData[i]][j].value);
+						}
+						console.log(sData);
+					}
+					for(var b = 0; b < sData.length; b++) {
+						seriesData.push({
+							name: k,
+							type: 'bar',
+							data: sData[i]
+						});
+					}
+					option.series = seriesData;
+					console.log(option.series);
+					myChart.setOption(config);
+				},
+				error: function(e) {
+					alert(e);
+				}
+			})
+		}
+
+		function setData(id, config) {
+			var myChart = echarts.init(document.getElementById(id));
+			getData(myChart, config);
+		}
+		setData('myChart', option)
+	</script>
+
+</html>
